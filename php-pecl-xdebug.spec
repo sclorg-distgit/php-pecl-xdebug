@@ -1,3 +1,5 @@
+# centos/sclo spec file for php-pecl-apcu, from:
+#
 # remirepo spec file for php-pecl-xdebug
 # with SCL compatibility, from:
 #
@@ -18,10 +20,6 @@
 %{!?__php:       %global __php        %{_bindir}/php}
 
 %global pecl_name   xdebug
-%global with_zts    0%{?__ztsphp:1}
-%global gh_commit   2d2bdbc7948aa72143df0c5fc0eb684078732bf9
-%global gh_short    %(c=%{gh_commit}; echo ${c:0:7})
-%global with_tests  0%{?_with_tests:1}
 
 # XDebug should be loaded after opcache
 %if "%{php_version}" < "5.6"
@@ -30,11 +28,11 @@
 %global ini_name  15-%{pecl_name}.ini
 %endif
 
-Name:           %{?scl_prefix}php-pecl-xdebug
+Name:           sclo-%{?scl_prefix}php-pecl-xdebug
 Summary:        PECL package for debugging PHP scripts
 Version:        2.3.3
-Release:        1%{?dist}%{!?scl:%{!?nophptag:%(%{__php} -r 'echo ".".PHP_MAJOR_VERSION.".".PHP_MINOR_VERSION;')}}
-Source0:        https://github.com/%{pecl_name}/%{pecl_name}/archive/%{gh_commit}/%{pecl_name}-%{version}-%{gh_short}.tar.gz
+Release:        1%{?dist}
+Source0:        http://pecl.php.net/get/%{pecl_name}-%{version}.tgz
 
 # The Xdebug License, version 1.01
 # (Based on "The PHP License", version 3.0)
@@ -47,34 +45,16 @@ BuildRequires:  %{?scl_prefix}php-pear  > 1.9.1
 BuildRequires:  %{?scl_prefix}php-devel > 5.4
 BuildRequires:  libedit-devel
 BuildRequires:  libtool
-%if %{with_tests}
-BuildRequires:  php-soap
-%endif
 
 Requires:       %{?scl_prefix}php(zend-abi) = %{php_zend_api}
 Requires:       %{?scl_prefix}php(api) = %{php_core_api}
-%{?_sclreq:Requires: %{?scl_prefix}runtime%{?_sclreq}%{?_isa}}
 
 Provides:       %{?scl_prefix}php-%{pecl_name} = %{version}
 Provides:       %{?scl_prefix}php-%{pecl_name}%{?_isa} = %{version}
 Provides:       %{?scl_prefix}php-pecl(Xdebug) = %{version}
 Provides:       %{?scl_prefix}php-pecl(Xdebug)%{?_isa} = %{version}
-
-%if "%{?vendor}" == "Remi Collet" && 0%{!?scl:1}
-# Other third party repo stuff
-Obsoletes:     php53-pecl-%{pecl_name}  <= %{version}
-Obsoletes:     php53u-pecl-%{pecl_name} <= %{version}
-Obsoletes:     php54-pecl-%{pecl_name}  <= %{version}
-Obsoletes:     php54w-pecl-%{pecl_name} <= %{version}
-%if "%{php_version}" > "5.5"
-Obsoletes:     php55u-pecl-%{pecl_name} <= %{version}
-Obsoletes:     php55w-pecl-%{pecl_name} <= %{version}
-%endif
-%if "%{php_version}" > "5.6"
-Obsoletes:     php56u-pecl-%{pecl_name} <= %{version}
-Obsoletes:     php56w-pecl-%{pecl_name} <= %{version}
-%endif
-%endif
+Provides:       %{?scl_prefix}php-pecl-%{pecl_name} = %{version}-%{release}
+Provides:       %{?scl_prefix}php-pecl-%{pecl_name}%{?_isa} = %{version}-%{release}
 
 %if 0%{?fedora} < 20 && 0%{?rhel} < 7
 # Filter private shared
@@ -106,8 +86,7 @@ Package built for PHP %(%{__php} -r 'echo PHP_MAJOR_VERSION.".".PHP_MINOR_VERSIO
 
 %prep
 %setup -qc
-mv %{pecl_name}-%{gh_commit} NTS
-mv NTS/package.xml .
+mv %{pecl_name}-%{version} NTS
 
 cd NTS
 
@@ -119,11 +98,6 @@ if test "$ver" != "%{version}%{?prever}"; then
 fi
 
 cd ..
-
-%if %{with_zts}
-# Duplicate source tree for NTS / ZTS build
-cp -pr NTS ZTS
-%endif
 
 
 %build
@@ -141,15 +115,6 @@ pushd debugclient
 %configure --with-libedit
 make %{?_smp_mflags}
 popd
-
-%if %{with_zts}
-cd ../ZTS
-%{_bindir}/zts-phpize
-%configure \
-    --enable-xdebug  \
-    --with-php-config=%{_bindir}/zts-php-config
-make %{?_smp_mflags}
-%endif
 
 
 %install
@@ -178,22 +143,6 @@ zend_extension=%{php_extdir}/%{pecl_name}.so
 ; see http://xdebug.org/docs/all_settings
 EOF
 
-%if %{with_zts}
-# Install ZTS extension
-make -C ZTS install INSTALL_ROOT=%{buildroot}
-
-install -d %{buildroot}%{php_ztsinidir}
-cat << 'EOF' | tee %{buildroot}%{php_ztsinidir}/%{ini_name}
-; Enable xdebug extension module
-%if "%{php_version}" > "5.5"
-zend_extension=%{pecl_name}.so
-%else
-zend_extension=%{php_ztsextdir}/%{pecl_name}.so
-%endif
-
-; see http://xdebug.org/docs/all_settings
-EOF
-%endif
 
 # Documentation
 for i in $(grep 'role="doc"' package.xml | sed -e 's/^.*name="//;s/".*$//')
@@ -209,38 +158,6 @@ done
     --no-php-ini \
     --define zend_extension=%{buildroot}%{php_extdir}/%{pecl_name}.so \
     --modules | grep Xdebug
-
-%if %{with_zts}
-%{_bindir}/zts-php \
-    --no-php-ini \
-    --define zend_extension=%{buildroot}%{php_ztsextdir}/%{pecl_name}.so \
-    --modules | grep Xdebug
-%endif
-
-%if %{with_tests}
-cd NTS
-# ignore kwown failed tests
-rm tests/bug00623.phpt
-rm tests/bug00687.phpt
-rm tests/bug00778.phpt
-rm tests/bug00806.phpt
-rm tests/bug00840.phpt
-rm tests/bug00886.phpt
-rm tests/bug00913.phpt
-rm tests/bug01059.phpt
-rm tests/bug01104.phpt
-rm tests/dbgp-context-get.phpt
-rm tests/dbgp-property-get-constants.phpt
-
-: Upstream test suite NTS extension
-TEST_PHP_EXECUTABLE=%{_bindir}/php \
-TEST_PHP_ARGS="-n -d extension=soap.so -d zend_extension=$PWD/modules/%{pecl_name}.so" \
-NO_INTERACTION=1 \
-REPORT_EXIT_STATUS=1 \
-%{__php} -n run-tests.php --show-diff
-%else
-: Test suite disabled
-%endif
 
 
 # when pear installed alone, after us
@@ -267,21 +184,17 @@ rm -rf %{buildroot}
 
 %files
 %defattr(-,root,root,-)
-%{?_licensedir:%license NTS/LICENSE}
 %doc %{pecl_docdir}/%{pecl_name}
 %{_bindir}/debugclient
 %{pecl_xmldir}/%{name}.xml
-
 %config(noreplace) %{php_inidir}/%{ini_name}
 %{php_extdir}/%{pecl_name}.so
 
-%if %{with_zts}
-%config(noreplace) %{php_ztsinidir}/%{ini_name}
-%{php_ztsextdir}/%{pecl_name}.so
-%endif
-
 
 %changelog
+* Wed Jan 20 2016 Remi Collet <remi@fedoraproject.org> - 2.3.3-1
+- cleanup for SCLo build
+
 * Fri Jun 19 2015 Remi Collet <remi@fedoraproject.org> - 2.3.3-1
 - update to 2.3.3
 - drop all patches, merged upstream
