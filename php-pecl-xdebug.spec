@@ -13,24 +13,23 @@
 #
 # Please, preserve the changelog entries
 #
-
-%{?scl:          %scl_package         php-pecl-xdebug}
-%{!?php_inidir:  %global php_inidir   %{_sysconfdir}/php.d}
-%{!?__pecl:      %global __pecl       %{_bindir}/pecl}
-%{!?__php:       %global __php        %{_bindir}/php}
+%if 0%{?scl:1}
+%if "%{scl}" == "rh-php70"
+%global sub_prefix sclo-php70-
+%else
+%global sub_prefix sclo-%{scl_prefix}
+%endif
+%scl_package         php-pecl-xdebug
+%endif
 
 %global pecl_name   xdebug
 
 # XDebug should be loaded after opcache
-%if "%{php_version}" < "5.6"
-%global ini_name  %{pecl_name}.ini
-%else
 %global ini_name  15-%{pecl_name}.ini
-%endif
 
-Name:           sclo-%{?scl_prefix}php-pecl-xdebug
+Name:           %{?sub_prefix}php-pecl-xdebug
 Summary:        PECL package for debugging PHP scripts
-Version:        2.3.3
+Version:        2.4.1
 Release:        1%{?dist}
 Source0:        http://pecl.php.net/get/%{pecl_name}-%{version}.tgz
 
@@ -134,11 +133,7 @@ install -Dpm 644 package.xml %{buildroot}%{pecl_xmldir}/%{name}.xml
 install -d %{buildroot}%{php_inidir}
 cat << 'EOF' | tee %{buildroot}%{php_inidir}/%{ini_name}
 ; Enable xdebug extension module
-%if "%{php_version}" > "5.5"
 zend_extension=%{pecl_name}.so
-%else
-zend_extension=%{php_extdir}/%{pecl_name}.so
-%endif
 
 ; see http://xdebug.org/docs/all_settings
 EOF
@@ -192,6 +187,9 @@ rm -rf %{buildroot}
 
 
 %changelog
+* Tue Nov  1 2016 Remi Collet <remi@fedoraproject.org> - 2.4.1-1
+- update to 2.4.1 for PHP 7
+
 * Wed Jan 20 2016 Remi Collet <remi@fedoraproject.org> - 2.3.3-1
 - cleanup for SCLo build
 
