@@ -5,7 +5,7 @@
 #
 # Fedora spec file for php-pecl-xdebug
 #
-# Copyright (c) 2010-2016 Remi Collet
+# Copyright (c) 2010-2017 Remi Collet
 # Copyright (c) 2006-2009 Christopher Stone
 #
 # License: MIT
@@ -29,7 +29,7 @@
 
 Name:           %{?sub_prefix}php-pecl-xdebug
 Summary:        PECL package for debugging PHP scripts
-Version:        2.4.1
+Version:        2.5.1
 Release:        1%{?dist}
 Source0:        http://pecl.php.net/get/%{pecl_name}-%{version}.tgz
 
@@ -39,7 +39,6 @@ License:        PHP
 Group:          Development/Languages
 URL:            http://xdebug.org/
 
-BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires:  %{?scl_prefix}php-pear  > 1.9.1
 BuildRequires:  %{?scl_prefix}php-devel > 5.4
 BuildRequires:  libedit-devel
@@ -117,8 +116,6 @@ popd
 
 
 %install
-rm -rf %{buildroot}
-
 # install NTS extension
 make -C NTS install INSTALL_ROOT=%{buildroot}
 
@@ -173,12 +170,7 @@ if [ $1 -eq 0 -a -x %{__pecl} ] ; then
 fi
 
 
-%clean
-rm -rf %{buildroot}
-
-
 %files
-%defattr(-,root,root,-)
 %doc %{pecl_docdir}/%{pecl_name}
 %{_bindir}/debugclient
 %{pecl_xmldir}/%{name}.xml
@@ -187,6 +179,9 @@ rm -rf %{buildroot}
 
 
 %changelog
+* Mon Apr 10 2017 Remi Collet <remi@fedoraproject.org> - 2.5.1-1
+- update to 2.5.1
+
 * Tue Nov  1 2016 Remi Collet <remi@fedoraproject.org> - 2.4.1-1
 - update to 2.4.1 for PHP 7
 
