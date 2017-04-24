@@ -29,7 +29,7 @@
 
 Name:           %{?sub_prefix}php-pecl-xdebug
 Summary:        PECL package for debugging PHP scripts
-Version:        2.5.1
+Version:        2.5.3
 Release:        1%{?dist}
 Source0:        http://pecl.php.net/get/%{pecl_name}-%{version}.tgz
 
@@ -179,6 +179,9 @@ fi
 
 
 %changelog
+* Mon Apr 24 2017 Remi Collet <remi@remirepo.net> - 2.5.3-1
+- update to 2.5.3
+
 * Mon Apr 10 2017 Remi Collet <remi@fedoraproject.org> - 2.5.1-1
 - update to 2.5.1
 
