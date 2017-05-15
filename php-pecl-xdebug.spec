@@ -29,7 +29,7 @@
 
 Name:           %{?sub_prefix}php-pecl-xdebug
 Summary:        PECL package for debugging PHP scripts
-Version:        2.5.3
+Version:        2.5.4
 Release:        1%{?dist}
 Source0:        http://pecl.php.net/get/%{pecl_name}-%{version}.tgz
 
@@ -40,7 +40,7 @@ Group:          Development/Languages
 URL:            http://xdebug.org/
 
 BuildRequires:  %{?scl_prefix}php-pear  > 1.9.1
-BuildRequires:  %{?scl_prefix}php-devel > 5.4
+BuildRequires:  %{?scl_prefix}php-devel > 5.5
 BuildRequires:  libedit-devel
 BuildRequires:  libtool
 
@@ -51,8 +51,10 @@ Provides:       %{?scl_prefix}php-%{pecl_name} = %{version}
 Provides:       %{?scl_prefix}php-%{pecl_name}%{?_isa} = %{version}
 Provides:       %{?scl_prefix}php-pecl(Xdebug) = %{version}
 Provides:       %{?scl_prefix}php-pecl(Xdebug)%{?_isa} = %{version}
+%if "%{?scl_prefix}" != "%{?sub_prefix}"
 Provides:       %{?scl_prefix}php-pecl-%{pecl_name} = %{version}-%{release}
 Provides:       %{?scl_prefix}php-pecl-%{pecl_name}%{?_isa} = %{version}-%{release}
+%endif
 
 %if 0%{?fedora} < 20 && 0%{?rhel} < 7
 # Filter private shared
@@ -179,6 +181,9 @@ fi
 
 
 %changelog
+* Mon May 15 2017 Remi Collet <remi@remirepo.net> - 2.5.4-1
+- update to 2.5.4
+
 * Mon Apr 24 2017 Remi Collet <remi@remirepo.net> - 2.5.3-1
 - update to 2.5.3
 
