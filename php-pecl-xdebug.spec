@@ -14,10 +14,12 @@
 # Please, preserve the changelog entries
 #
 %if 0%{?scl:1}
+%global sub_prefix sclo-%{scl_prefix}
 %if "%{scl}" == "rh-php70"
 %global sub_prefix sclo-php70-
-%else
-%global sub_prefix sclo-%{scl_prefix}
+%endif
+%if "%{scl}" == "rh-php71"
+%global sub_prefix sclo-php71-
 %endif
 %scl_package         php-pecl-xdebug
 %endif
@@ -29,7 +31,7 @@
 
 Name:           %{?sub_prefix}php-pecl-xdebug
 Summary:        PECL package for debugging PHP scripts
-Version:        2.5.4
+Version:        2.5.5
 Release:        1%{?dist}
 Source0:        http://pecl.php.net/get/%{pecl_name}-%{version}.tgz
 
@@ -181,6 +183,9 @@ fi
 
 
 %changelog
+* Thu Jun 22 2017 Remi Collet <remi@remirepo.net> - 2.5.5-1
+- update to 2.5.5
+
 * Mon May 15 2017 Remi Collet <remi@remirepo.net> - 2.5.4-1
 - update to 2.5.4
 
