@@ -24,6 +24,9 @@
 %if "%{scl}" == "rh-php72"
 %global sub_prefix sclo-php72-
 %endif
+%if "%{scl}" == "rh-php73"
+%global sub_prefix sclo-php73-
+%endif
 %scl_package         php-pecl-xdebug
 %endif
 
@@ -34,7 +37,7 @@
 
 Name:           %{?sub_prefix}php-pecl-xdebug
 Summary:        PECL package for debugging PHP scripts
-Version:        2.7.0
+Version:        2.7.1
 Release:        1%{?dist}
 Source0:        http://pecl.php.net/get/%{pecl_name}-%{version}.tgz
 
@@ -186,6 +189,9 @@ fi
 
 
 %changelog
+* Fri Apr  5 2019 Remi Collet <remi@remirepo.net> - 2.7.1-1
+- update to 2.7.1
+
 * Tue Mar 12 2019 Remi Collet <remi@remirepo.net> - 2.7.0-1
 - update to 2.7.0
 
