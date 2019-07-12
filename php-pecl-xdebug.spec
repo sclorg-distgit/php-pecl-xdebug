@@ -1,4 +1,4 @@
-# centos/sclo spec file for php-pecl-apcu, from:
+# centos/sclo spec file for php-pecl-xdebug, from:
 #
 # remirepo spec file for php-pecl-xdebug
 # with SCL compatibility, from:
